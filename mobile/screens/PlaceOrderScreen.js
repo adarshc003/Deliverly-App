@@ -221,6 +221,7 @@ export default function PlaceOrderScreen({
 
         <TextInput
           placeholder="Customer Name"
+          placeholderTextColor="#111"
           style={styles.input}
           value={customerName}
           onChangeText={
@@ -236,6 +237,7 @@ export default function PlaceOrderScreen({
 
         <TextInput
           placeholder="Mobile Number"
+          placeholderTextColor="#111"
           keyboardType="phone-pad"
           style={styles.input}
           value={phone}
@@ -250,6 +252,7 @@ export default function PlaceOrderScreen({
 
         <TextInput
           placeholder="Delivery Address"
+          placeholderTextColor="#111"
           multiline
           style={[
             styles.input,

@@ -56,6 +56,7 @@ export default function LoginScreen({ navigation }) {
           style={styles.input}
           value={password}
           onChangeText={setPassword}
+          selectionColor="#111"
         />
 
         <TouchableOpacity style={styles.button}>
