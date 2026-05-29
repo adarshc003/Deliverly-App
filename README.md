@@ -2,11 +2,15 @@
 
 ### Delivery Management Mini App
 
+## APK Download
+
+[Download APK](https://expo.dev/accounts/adarsh_003/projects/mobile/builds/db965fcf-eb9b-4d15-8098-8d567849683b)
+
 Deliverly is a full-stack delivery management mobile application built using **React Native, Node.js, Express.js, and MongoDB**.
 
 The application allows customers to place and track food orders while delivery partners can securely accept and manage deliveries through a dedicated dashboard.
 
-This project focuses on real-world workflow implementation, role-based authentication, API integration, delivery management logic, and clean mobile UI design.
+This project focuses on real-world workflow implementation, role-based authentication, API integration, delivery management logic, and modern mobile UI/UX.
 
 ---
 
@@ -21,7 +25,7 @@ This project focuses on real-world workflow implementation, role-based authentic
 * Real-time order tracking
 * Profile management
 * Form validation with inline error handling
-* Toast notifications for better UX
+* Toast notifications for better user experience
 
 ---
 
@@ -48,7 +52,7 @@ This project focuses on real-world workflow implementation, role-based authentic
 * Order Ownership Validation
 * MongoDB Database Integration
 * REST API Architecture
-* Modern Mobile UI/UX
+* Modern Mobile UI Design
 
 ---
 
@@ -175,7 +179,7 @@ DELIVERLY_2026
 * Live GPS Tracking
 * Admin Dashboard
 * Order Analytics
-* Google Auth
+* Google Authentication
 
 ---
 
