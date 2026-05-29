@@ -4,7 +4,7 @@
 
 ## APK Download
 
-[Download APK](https://expo.dev/accounts/adarsh_003/projects/mobile/builds/db965fcf-eb9b-4d15-8098-8d567849683b)
+[Download APK](https://expo.dev/accounts/adarsh_003/projects/mobile/builds/ca389ba3-d8f0-46ba-aaf0-70785d0ab0f8)
 
 Deliverly is a full-stack delivery management mobile application built using **React Native, Node.js, Express.js, and MongoDB**.
 
