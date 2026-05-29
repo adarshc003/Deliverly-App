@@ -1,0 +1,399 @@
+import React, {
+  useState,
+} from "react";
+
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  ScrollView,
+  Image,
+} from "react-native";
+
+import API from "../services/api";
+
+import Toast from "react-native-toast-message";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import {
+  validateName,
+  validatePhone,
+} from "../services/validation";
+
+export default function PlaceOrderScreen({
+  navigation,
+  route,
+}) {
+
+  const {
+    selectedItem,
+    itemPrice,
+  } = route.params;
+
+  const [customerName, setCustomerName] =
+    useState("");
+
+  const [phone, setPhone] =
+    useState("");
+
+  const [address, setAddress] =
+    useState("");
+
+  const [quantity, setQuantity] =
+    useState(1);
+
+  const [errors, setErrors] =
+    useState({});
+
+  const totalPrice =
+    itemPrice * quantity;
+
+  const handlePlaceOrder = async () => {
+
+    const newErrors = {};
+
+    if (!validateName(customerName)) {
+
+      newErrors.customerName =
+        "Enter first and last name";
+
+    }
+
+    if (!validatePhone(phone)) {
+
+      newErrors.phone =
+        "Enter valid 10 digit number";
+
+    }
+
+    if (address.trim().length < 10) {
+
+      newErrors.address =
+        "Enter complete address";
+
+    }
+
+    setErrors(newErrors);
+
+    if (
+      Object.keys(newErrors).length > 0
+    ) {
+      return;
+    }
+
+    try {
+
+      const token =
+        await AsyncStorage.getItem(
+          "token"
+        );
+
+      await API.post(
+        "/orders",
+        {
+          customerName,
+          phone,
+          item: selectedItem,
+          itemPrice,
+          quantity,
+          totalPrice,
+          address,
+        },
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+      Toast.show({
+        type: "success",
+        text1:
+          "Order placed successfully 🚀",
+      });
+
+      navigation.navigate("Home");
+
+    } catch (error) {
+
+      Toast.show({
+        type: "error",
+        text1:
+          "Failed to place order",
+      });
+
+    }
+  };
+
+  return (
+
+    <SafeAreaView style={styles.container}>
+
+      <ScrollView
+        showsVerticalScrollIndicator={
+          false
+        }
+      >
+
+        <Text style={styles.title}>
+          Confirm Order
+        </Text>
+
+        <View style={styles.itemCard}>
+
+          <Text style={styles.itemName}>
+            {selectedItem}
+          </Text>
+
+          <Text style={styles.itemPrice}>
+            ₹{itemPrice}
+          </Text>
+
+        </View>
+
+        {/* QUANTITY */}
+
+        <Text style={styles.label}>
+          Quantity
+        </Text>
+
+        <View style={styles.quantityRow}>
+
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() => {
+
+              if (quantity > 1) {
+
+                setQuantity(
+                  quantity - 1
+                );
+
+              }
+            }}
+          >
+
+            <Text
+              style={
+                styles.quantityButtonText
+              }
+            >
+              -
+            </Text>
+
+          </TouchableOpacity>
+
+          <Text
+            style={styles.quantityText}
+          >
+            {quantity}
+          </Text>
+
+          <TouchableOpacity
+            style={styles.quantityButton}
+            onPress={() =>
+              setQuantity(
+                quantity + 1
+              )
+            }
+          >
+
+            <Text
+              style={
+                styles.quantityButtonText
+              }
+            >
+              +
+            </Text>
+
+          </TouchableOpacity>
+
+        </View>
+
+        <Text style={styles.totalPrice}>
+          Total: ₹{totalPrice}
+        </Text>
+
+        <TextInput
+          placeholder="Customer Name"
+          style={styles.input}
+          value={customerName}
+          onChangeText={
+            setCustomerName
+          }
+        />
+
+        {errors.customerName && (
+          <Text style={styles.error}>
+            {errors.customerName}
+          </Text>
+        )}
+
+        <TextInput
+          placeholder="Mobile Number"
+          keyboardType="phone-pad"
+          style={styles.input}
+          value={phone}
+          onChangeText={setPhone}
+        />
+
+        {errors.phone && (
+          <Text style={styles.error}>
+            {errors.phone}
+          </Text>
+        )}
+
+        <TextInput
+          placeholder="Delivery Address"
+          multiline
+          style={[
+            styles.input,
+            styles.addressInput,
+          ]}
+          value={address}
+          onChangeText={setAddress}
+        />
+
+        {errors.address && (
+          <Text style={styles.error}>
+            {errors.address}
+          </Text>
+        )}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handlePlaceOrder}
+        >
+
+          <Text style={styles.buttonText}>
+            Confirm Order
+          </Text>
+
+        </TouchableOpacity>
+
+      </ScrollView>
+
+    </SafeAreaView>
+
+  );
+}
+
+const styles = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+    padding: 24,
+  },
+
+  title: {
+    marginTop: 50,
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#111",
+    marginBottom: 30,
+  },
+
+  itemCard: {
+    backgroundColor: "#111",
+    padding: 24,
+    borderRadius: 24,
+    marginBottom: 30,
+  },
+
+  itemName: {
+    color: "#FFF",
+    fontSize: 26,
+    fontWeight: "800",
+  },
+
+  itemPrice: {
+    marginTop: 10,
+    color: "#22C55E",
+    fontSize: 18,
+    fontWeight: "700",
+  },
+
+  label: {
+    fontSize: 16,
+    fontWeight: "700",
+    marginBottom: 14,
+    color: "#111",
+  },
+
+  quantityRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  quantityButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "#111",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  quantityButtonText: {
+    color: "#FFF",
+    fontSize: 24,
+    fontWeight: "700",
+  },
+
+  quantityText: {
+    marginHorizontal: 24,
+    fontSize: 24,
+    fontWeight: "800",
+  },
+
+  totalPrice: {
+    fontSize: 22,
+    fontWeight: "800",
+    marginBottom: 30,
+    color: "#22C55E",
+  },
+
+  input: {
+    backgroundColor: "#FFF",
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 18,
+    fontSize: 15,
+  },
+
+  addressInput: {
+    height: 120,
+    textAlignVertical: "top",
+  },
+
+  button: {
+    backgroundColor: "#111",
+    padding: 18,
+    borderRadius: 18,
+    marginTop: 12,
+    marginBottom: 40,
+  },
+
+  buttonText: {
+    color: "#FFF",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  error: {
+    color: "#EF4444",
+    marginBottom: 12,
+    marginLeft: 6,
+    fontSize: 13,
+  },
+
+});
+

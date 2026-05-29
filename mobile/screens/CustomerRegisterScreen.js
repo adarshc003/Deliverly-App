@@ -1,0 +1,264 @@
+import React, { useState } from "react";
+
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+} from "react-native";
+
+import API from "../services/api";
+
+import {
+  validateEmail,
+  validateName,
+  validatePassword,
+} from "../services/validation";
+
+import Toast from "react-native-toast-message";
+
+export default function CustomerRegisterScreen({
+  navigation,
+}) {
+
+  const [name, setName] = useState("");
+
+  const [email, setEmail] = useState("");
+
+  const [password, setPassword] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  const handleRegister = async () => {
+
+    const newErrors = {};
+
+if (!validateName(name)) {
+
+newErrors.name =
+  "Enter first and last name";
+
+}
+
+if (!validateEmail(email)) {
+
+newErrors.email =
+  "Enter valid Gmail address";
+
+}
+
+if (!validatePassword(password)) {
+
+  newErrors.password =
+    "Password must be at least 6 characters";
+
+}
+
+setErrors(newErrors);
+
+if (
+  Object.keys(newErrors).length > 0
+) {
+  return;
+}
+
+    try {
+
+      const response = await API.post(
+        "/auth/register",
+        {
+          name,
+          email,
+          password,
+          role: "customer",
+        }
+      );
+
+Toast.show({
+  type: "success",
+  text1: "Registration Successful 🎉",
+});
+
+      navigation.navigate("CustomerLogin");
+
+    } catch (error) {
+
+Toast.show({
+  type: "error",
+  text1: "Registration Failed",
+  text2:
+    error.response?.data?.message,
+});
+
+    }
+  };
+
+  return (
+
+    <SafeAreaView style={styles.container}>
+
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate("CustomerLogin")
+        }
+      >
+        <Text style={styles.back}>
+          ← Back
+        </Text>
+      </TouchableOpacity>
+
+      <View style={styles.content}>
+
+        <Text style={styles.title}>
+          Create Account
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Join ADDONEZ and start ordering 🚀
+        </Text>
+
+        <TextInput
+          placeholder="Full Name"
+          placeholderTextColor="#888"
+          style={styles.input}
+          value={name}
+          onChangeText={setName}
+        />
+
+        {errors.name && (
+  <Text style={styles.error}>
+    {errors.name}
+  </Text>
+)}
+
+        <TextInput
+          placeholder="Email"
+          placeholderTextColor="#888"
+          style={styles.input}
+          value={email}
+          onChangeText={setEmail}
+        />
+
+        {errors.email && (
+  <Text style={styles.error}>
+    {errors.email}
+  </Text>
+)}
+
+        <TextInput
+          placeholder="Password"
+          placeholderTextColor="#888"
+          secureTextEntry
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        {errors.password && (
+  <Text style={styles.error}>
+    {errors.password}
+  </Text>
+)}
+
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleRegister}
+        >
+          <Text style={styles.buttonText}>
+            Register
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate(
+              "CustomerLogin"
+            )
+          }
+        >
+          <Text style={styles.loginText}>
+            Already have an account?
+            Login
+          </Text>
+        </TouchableOpacity>
+
+      </View>
+
+    </SafeAreaView>
+
+  );
+}
+
+const styles = StyleSheet.create({
+
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F5F5",
+    padding: 24,
+  },
+
+  back: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#111",
+    fontWeight: "600",
+  },
+
+  content: {
+    flex: 1,
+    justifyContent: "center",
+  },
+
+  title: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: "#111",
+  },
+
+  subtitle: {
+    marginTop: 10,
+    marginBottom: 40,
+    color: "#666",
+    fontSize: 15,
+    lineHeight: 22,
+  },
+
+  input: {
+    backgroundColor: "#FFF",
+    padding: 18,
+    borderRadius: 16,
+    marginBottom: 18,
+    fontSize: 15,
+  },
+
+  button: {
+    backgroundColor: "#111",
+    padding: 18,
+    borderRadius: 16,
+    marginTop: 10,
+  },
+
+  buttonText: {
+    color: "#FFF",
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  loginText: {
+    marginTop: 24,
+    textAlign: "center",
+    color: "#111",
+    fontWeight: "600",
+  },
+
+  error: {
+  color: "#EF4444",
+  marginBottom: 12,
+  marginLeft: 6,
+  fontSize: 13,
+},
+
+});
