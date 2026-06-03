@@ -7,11 +7,14 @@ import {
   View,
   StyleSheet,
   ActivityIndicator,
+  Text,
 } from "react-native";
 
 import MapView, {
   Marker,
 } from "react-native-maps";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import API from "../services/api";
 
@@ -26,13 +29,29 @@ LiveTrackingScreen({
   const [order, setOrder] =
     useState(null);
 
+  const [loading, setLoading] =
+    useState(true);
+
   const fetchOrder =
     async () => {
 
     try {
 
+      const token =
+        await AsyncStorage.getItem(
+          "token"
+        );
+
       const response =
-        await API.get("/orders");
+        await API.get(
+          "/orders",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
       const foundOrder =
         response.data.find(
@@ -44,6 +63,10 @@ LiveTrackingScreen({
     } catch (error) {
 
       console.log(error);
+
+    } finally {
+
+      setLoading(false);
 
     }
   };
@@ -64,18 +87,37 @@ LiveTrackingScreen({
 
   }, []);
 
+  if (loading) {
+
+    return (
+
+      <View style={styles.loader}>
+
+        <ActivityIndicator
+          size="large"
+          color="#111"
+        />
+
+      </View>
+
+    );
+  }
+
   if (
     !order ||
     !order.customerLocation
   ) {
 
     return (
+
       <View style={styles.loader}>
-        <ActivityIndicator
-          size="large"
-          color="#111"
-        />
+
+        <Text style={styles.errorText}>
+          Location not available
+        </Text>
+
       </View>
+
     );
   }
 
@@ -83,12 +125,19 @@ LiveTrackingScreen({
 
     <MapView
       style={styles.map}
-      initialRegion={{
+
+      region={{
         latitude:
-          order.customerLocation.latitude,
+          order.deliveryLocation
+            ?.latitude ||
+          order.customerLocation
+            .latitude,
 
         longitude:
-          order.customerLocation.longitude,
+          order.deliveryLocation
+            ?.longitude ||
+          order.customerLocation
+            .longitude,
 
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
@@ -100,16 +149,19 @@ LiveTrackingScreen({
       <Marker
         coordinate={{
           latitude:
-            order.customerLocation.latitude,
+            order.customerLocation
+              .latitude,
 
           longitude:
-            order.customerLocation.longitude,
+            order.customerLocation
+              .longitude,
         }}
 
         title="Customer"
+        description="Delivery destination"
       />
 
-      {/* DELIVERY */}
+      {/* DELIVERY PARTNER */}
 
       {order.deliveryLocation
         ?.latitude && (
@@ -117,15 +169,19 @@ LiveTrackingScreen({
         <Marker
           coordinate={{
             latitude:
-              order.deliveryLocation.latitude,
+              order.deliveryLocation
+                .latitude,
 
             longitude:
-              order.deliveryLocation.longitude,
+              order.deliveryLocation
+                .longitude,
           }}
 
-          pinColor="green"
-
           title="Delivery Partner"
+
+          description="Live location"
+
+          pinColor="green"
         />
 
       )}
@@ -146,6 +202,13 @@ const styles =
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#F5F5F5",
+  },
+
+  errorText: {
+    fontSize: 16,
+    color: "#666",
+    fontWeight: "600",
   },
 
 });
