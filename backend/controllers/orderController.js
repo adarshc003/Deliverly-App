@@ -222,7 +222,37 @@ const updateOrderStatus = async (
 
     }
 
-    const updateDeliveryLocation = async (
+
+    // ensure assigned rider only
+    if (
+      !order.deliveryBoy ||
+      order.deliveryBoy.toString() !==
+        req.user.id
+    ) {
+
+      return res.status(403).json({
+        message:
+          "Unauthorized action",
+      });
+
+    }
+
+    order.status = status;
+
+    await order.save();
+
+    res.status(200).json(order);
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message,
+    });
+
+  }
+};
+
+const updateDeliveryLocation = async (
   req,
   res
 ) => {
@@ -268,34 +298,6 @@ const updateOrderStatus = async (
   }
 };
 
-    // ensure assigned rider only
-    if (
-      !order.deliveryBoy ||
-      order.deliveryBoy.toString() !==
-        req.user.id
-    ) {
-
-      return res.status(403).json({
-        message:
-          "Unauthorized action",
-      });
-
-    }
-
-    order.status = status;
-
-    await order.save();
-
-    res.status(200).json(order);
-
-  } catch (error) {
-
-    res.status(500).json({
-      message: error.message,
-    });
-
-  }
-};
 
 
 module.exports = {
