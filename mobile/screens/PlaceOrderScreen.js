@@ -10,7 +10,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Image,
 } from "react-native";
 
 import API from "../services/api";
@@ -19,7 +18,10 @@ import Toast from "react-native-toast-message";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {validateName,validatePhone,} from "../services/validation";
+import {
+  validateName,
+  validatePhone,
+} from "../services/validation";
 
 import * as Location from "expo-location";
 
@@ -46,13 +48,13 @@ export default function PlaceOrderScreen({
   const [address, setAddress] =
     useState("");
 
-    const [customerLocation,
-setCustomerLocation] =
-useState(null);
+  const [customerLocation,
+    setCustomerLocation] =
+    useState(null);
 
-const [mapRegion,
-setMapRegion] =
-useState(null);
+  const [mapRegion,
+    setMapRegion] =
+    useState(null);
 
   const [quantity, setQuantity] =
     useState(1);
@@ -63,62 +65,84 @@ useState(null);
   const totalPrice =
     itemPrice * quantity;
 
+  const getCurrentLocation =
+    async () => {
 
-    const getCurrentLocation =
-  async () => {
+    try {
 
-  try {
+      const { status } =
+        await Location.requestForegroundPermissionsAsync();
 
-    const { status } =
-      await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
 
-    if (status !== "granted") {
+        Toast.show({
+          type: "error",
+          text1:
+            "Location permission denied",
+        });
+
+        return;
+      }
+
+      const location =
+        await Location.getLastKnownPositionAsync();
+
+      if (!location) {
+
+        Toast.show({
+          type: "error",
+          text1:
+            "No saved location found",
+        });
+
+        return;
+      }
+
+      console.log(location);
+
+      const coords = {
+        latitude:
+          location.coords.latitude,
+
+        longitude:
+          location.coords.longitude,
+      };
+
+      setCustomerLocation(coords);
+
+      setMapRegion({
+        latitude:
+          coords.latitude,
+
+        longitude:
+          coords.longitude,
+
+        latitudeDelta: 0.01,
+
+        longitudeDelta: 0.01,
+      });
+
+      Toast.show({
+        type: "success",
+        text1:
+          "Location fetched successfully 📍",
+      });
+
+    } catch (error) {
+
+      console.log(
+        "LOCATION ERROR:",
+        error
+      );
 
       Toast.show({
         type: "error",
         text1:
-          "Location permission denied",
+          "Failed to get location",
       });
 
-      return;
-
     }
-
-    const location =
-      await Location.getCurrentPositionAsync({});
-
-const coords = {
-  latitude:
-    location.coords.latitude,
-
-  longitude:
-    location.coords.longitude,
-};
-
-setCustomerLocation(coords);
-
-setMapRegion({
-  ...coords,
-  latitudeDelta: 0.01,
-  longitudeDelta: 0.01,
-});
-
-    Toast.show({
-      type: "success",
-      text1:
-        "Location fetched successfully 📍",
-    });
-
-  } catch (error) {
-
-    Toast.show({
-      type: "error",
-      text1:
-        "Failed to get location",
-    });
-
-  }
-};
+  };
 
   const handlePlaceOrder = async () => {
 
@@ -128,25 +152,22 @@ setMapRegion({
 
       newErrors.customerName =
         "Enter first and last name";
-
     }
 
     if (!validatePhone(phone)) {
 
       newErrors.phone =
         "Enter valid 10 digit number";
-
     }
 
-   if (
-  address.trim().length < 10 &&
-  !customerLocation
-) {
+    if (
+      address.trim().length < 10 &&
+      !customerLocation
+    ) {
 
-  newErrors.address =
-    "Add address or use current location";
-
-}
+      newErrors.address =
+        "Add address or use current location";
+    }
 
     setErrors(newErrors);
 
@@ -193,6 +214,8 @@ setMapRegion({
 
     } catch (error) {
 
+      console.log(error);
+
       Toast.show({
         type: "error",
         text1:
@@ -228,8 +251,6 @@ setMapRegion({
 
         </View>
 
-        {/* QUANTITY */}
-
         <Text style={styles.label}>
           Quantity
         </Text>
@@ -245,7 +266,6 @@ setMapRegion({
                 setQuantity(
                   quantity - 1
                 );
-
               }
             }}
           >
@@ -340,59 +360,61 @@ setMapRegion({
           </Text>
         )}
 
+        <TouchableOpacity
+          style={styles.locationButton}
+          onPress={getCurrentLocation}
+        >
 
- <TouchableOpacity
-  style={styles.locationButton}
-  onPress={getCurrentLocation}
->
+          <Text style={styles.locationButtonText}>
+            Use Current Location 📍
+          </Text>
 
-  <Text style={styles.locationButtonText}>
-    Use Current Location 📍
-  </Text>
+        </TouchableOpacity>
 
-</TouchableOpacity>
+        {customerLocation && mapRegion && (
 
-{customerLocation && mapRegion && (
+          <View style={styles.mapContainer}>
 
-<View style={styles.mapContainer}>
+            <MapView
+              style={styles.map}
+              initialRegion={mapRegion}
+            >
 
-<MapView
-  style={styles.map}
-  region={mapRegion}
-  onRegionChangeComplete={
-    setMapRegion
-  }
->
+              <Marker
+                coordinate={mapRegion}
+                draggable
 
-<Marker
-  coordinate={mapRegion}
-  draggable
+                onDragEnd={(e) => {
 
-  onDragEnd={(e) => {
+                  const coords =
+                    e.nativeEvent.coordinate;
 
-    const coords =
-      e.nativeEvent.coordinate;
+                  setCustomerLocation(coords);
 
-    setCustomerLocation(coords);
+                  setMapRegion({
+                    latitude:
+                      coords.latitude,
 
-    setMapRegion({
-      ...coords,
-      latitudeDelta: 0.01,
-      longitudeDelta: 0.01,
-    });
+                    longitude:
+                      coords.longitude,
 
-  }}
-/>
+                    latitudeDelta: 0.01,
 
-</MapView>
+                    longitudeDelta: 0.01,
+                  });
 
-<Text style={styles.mapText}>
-  Adjust delivery pin if needed 📍
-</Text>
+                }}
+              />
 
-</View>
+            </MapView>
 
-)}
+            <Text style={styles.mapText}>
+              Adjust delivery pin if needed 📍
+            </Text>
+
+          </View>
+
+        )}
 
         <TouchableOpacity
           style={styles.button}
@@ -495,6 +517,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 18,
     fontSize: 15,
+    color: "#111",
   },
 
   addressInput: {
@@ -524,35 +547,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 
-
   locationButton: {
-  backgroundColor: "#2563EB",
-  padding: 16,
-  borderRadius: 16,
-  marginBottom: 16,
-},
+    backgroundColor: "#2563EB",
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
 
-locationButtonText: {
-  color: "#FFF",
-  textAlign: "center",
-  fontWeight: "700",
-},
+  locationButtonText: {
+    color: "#FFF",
+    textAlign: "center",
+    fontWeight: "700",
+  },
 
-mapContainer: {
-  marginBottom: 20,
-},
+  mapContainer: {
+    marginBottom: 20,
+  },
 
-map: {
-  height: 220,
-  borderRadius: 20,
-},
+  map: {
+    height: 220,
+    borderRadius: 20,
+  },
 
-mapText: {
-  marginTop: 10,
-  textAlign: "center",
-  color: "#666",
-  fontWeight: "600",
-},
+  mapText: {
+    marginTop: 10,
+    textAlign: "center",
+    color: "#666",
+    fontWeight: "600",
+  },
 
 });
-

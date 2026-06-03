@@ -9,6 +9,8 @@ const placeOrder = async (
 
   try {
 
+    console.log(req.body);
+
     const {
       customerName,
       phone,
@@ -29,7 +31,10 @@ const placeOrder = async (
         itemPrice,
         quantity,
         totalPrice,
-        address,
+
+        address:
+          address || "Location Selected",
+
         customerLocation,
 
         customer:
@@ -42,6 +47,8 @@ const placeOrder = async (
     res.status(201).json(order);
 
   } catch (error) {
+
+    console.log(error);
 
     res.status(500).json({
       message: error.message,

@@ -14,6 +14,8 @@ import {
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import API from "../services/api";
+
 export default function HomeScreen({
   navigation,
 }) {
@@ -74,8 +76,8 @@ export default function HomeScreen({
           );
 
         const response =
-          await fetch(
-            "http://10.149.32.60:5000/api/orders",
+          await API.get(
+            "/orders",
             {
               headers: {
                 Authorization:
@@ -85,7 +87,7 @@ export default function HomeScreen({
           );
 
         const data =
-          await response.json();
+          response.data;
 
         const latestOrder =
           data.find(
@@ -102,9 +104,12 @@ export default function HomeScreen({
 
         }
 
-      } catch (error) {
+      }catch (error) {
 
-        console.log(error);
+  console.log(
+    "LOCATION ERROR:",
+    error
+  );
 
       }
     };
