@@ -6,6 +6,7 @@ const {
   acceptOrder,
   rejectOrder,
   updateOrderStatus,
+  updateDeliveryLocation,
 } = require("../controllers/orderController");
 
 const protect = require("../middleware/authMiddleware");
@@ -25,5 +26,7 @@ router.put("/accept/:id", protect, acceptOrder);
 router.put("/reject/:id",protect,rejectOrder);
 
 router.put("/status/:id", protect, updateOrderStatus);
+
+router.put("/location/:id", protect, updateDeliveryLocation);
 
 module.exports = router;

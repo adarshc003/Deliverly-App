@@ -163,6 +163,30 @@ const response =
 
             </View>
 
+            {order.status !==
+"Pending" && (
+
+<TouchableOpacity
+  style={styles.trackButton}
+  onPress={() =>
+    navigation.navigate(
+      "LiveTracking",
+      {
+        orderId:
+          order._id,
+      }
+    )
+  }
+>
+
+  <Text style={styles.trackButtonText}>
+    Live Track 🚚
+  </Text>
+
+</TouchableOpacity>
+
+)}
+
           </View>
 
         ))
@@ -240,6 +264,19 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "700",
   },
+
+  trackButton: {
+  backgroundColor: "#111",
+  padding: 14,
+  borderRadius: 14,
+  marginTop: 16,
+  alignItems: "center",
+},
+
+trackButtonText: {
+  color: "#FFF",
+  fontWeight: "700",
+},
 
   empty: {
     marginTop: 60,

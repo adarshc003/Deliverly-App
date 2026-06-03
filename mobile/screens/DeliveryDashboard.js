@@ -18,6 +18,8 @@ import API from "../services/api";
 
 import Toast from "react-native-toast-message";
 
+import * as Location from "expo-location";
+
 export default function DeliveryDashboard() {
 
   const [orders, setOrders] =
@@ -138,6 +140,51 @@ Toast.show({
   }
 };
 
+
+const sendLiveLocation =
+  async (orderId) => {
+
+  try {
+
+    const { status } =
+      await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+      return;
+    }
+
+    const location =
+      await Location.getCurrentPositionAsync({});
+
+    const token =
+      await AsyncStorage.getItem(
+        "token"
+      );
+
+    await API.put(
+      `/orders/location/${orderId}`,
+      {
+        latitude:
+          location.coords.latitude,
+
+        longitude:
+          location.coords.longitude,
+      },
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+        },
+      }
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+};
+
   // UPDATE STATUS
   const updateStatus = async (
     id,
@@ -150,6 +197,7 @@ Toast.show({
         await AsyncStorage.getItem(
           "token"
         );
+        await sendLiveLocation(id);
 
       await API.put(
         `/orders/status/${id}`,

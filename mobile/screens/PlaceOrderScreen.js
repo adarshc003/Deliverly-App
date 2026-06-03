@@ -19,10 +19,9 @@ import Toast from "react-native-toast-message";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {
-  validateName,
-  validatePhone,
-} from "../services/validation";
+import {validateName,validatePhone,} from "../services/validation";
+
+import * as Location from "expo-location";
 
 export default function PlaceOrderScreen({
   navigation,
@@ -43,6 +42,10 @@ export default function PlaceOrderScreen({
   const [address, setAddress] =
     useState("");
 
+    const [customerLocation,
+setCustomerLocation] =
+useState(null);
+
   const [quantity, setQuantity] =
     useState(1);
 
@@ -51,6 +54,54 @@ export default function PlaceOrderScreen({
 
   const totalPrice =
     itemPrice * quantity;
+
+
+    const getCurrentLocation =
+  async () => {
+
+  try {
+
+    const { status } =
+      await Location.requestForegroundPermissionsAsync();
+
+    if (status !== "granted") {
+
+      Toast.show({
+        type: "error",
+        text1:
+          "Location permission denied",
+      });
+
+      return;
+
+    }
+
+    const location =
+      await Location.getCurrentPositionAsync({});
+
+    setCustomerLocation({
+      latitude:
+        location.coords.latitude,
+      longitude:
+        location.coords.longitude,
+    });
+
+    Toast.show({
+      type: "success",
+      text1:
+        "Location fetched successfully 📍",
+    });
+
+  } catch (error) {
+
+    Toast.show({
+      type: "error",
+      text1:
+        "Failed to get location",
+    });
+
+  }
+};
 
   const handlePlaceOrder = async () => {
 
@@ -102,6 +153,7 @@ export default function PlaceOrderScreen({
           quantity,
           totalPrice,
           address,
+          customerLocation,
         },
         {
           headers: {
@@ -268,6 +320,18 @@ export default function PlaceOrderScreen({
           </Text>
         )}
 
+
+        <TouchableOpacity
+  style={styles.locationButton}
+  onPress={getCurrentLocation}
+>
+
+  <Text style={styles.locationButtonText}>
+    Use Current Location 📍
+  </Text>
+
+</TouchableOpacity>
+
         <TouchableOpacity
           style={styles.button}
           onPress={handlePlaceOrder}
@@ -397,6 +461,20 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 13,
   },
+
+
+  locationButton: {
+  backgroundColor: "#2563EB",
+  padding: 16,
+  borderRadius: 16,
+  marginBottom: 16,
+},
+
+locationButtonText: {
+  color: "#FFF",
+  textAlign: "center",
+  fontWeight: "700",
+},
 
 });
 

@@ -43,6 +43,23 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
 
+    customerLocation: {
+      latitude: Number,
+      longitude: Number,
+    },
+
+    deliveryLocation: {
+      latitude: {
+        type: Number,
+        default: null,
+      },
+
+      longitude: {
+        type: Number,
+        default: null,
+      },
+    },
+
     status: {
       type: String,
       enum: [
@@ -69,4 +86,3 @@ module.exports = mongoose.model(
   "Order",
   orderSchema
 );
-

@@ -20,6 +20,7 @@ import OrderStatusScreen from "../screens/OrderStatusScreen";
 import CustomerTabs from "./CustomerTabs";
 import DeliveryTabs from "./DeliveryTabs";
 import SplashScreen from "../screens/SplashScreen";
+import LiveTrackingScreen from "../screens/LiveTrackingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -83,6 +84,11 @@ export default function AppNavigator() {
 <Stack.Screen
   name="OrderStatus"
   component={OrderStatusScreen}
+/>
+
+<Stack.Screen
+  name="LiveTracking"
+  component={LiveTrackingScreen}
 />
 
       </Stack.Navigator>

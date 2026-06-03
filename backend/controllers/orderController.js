@@ -17,6 +17,7 @@ const placeOrder = async (
       quantity,
       totalPrice,
       address,
+      customerLocation,
     } = req.body;
 
     const order =
@@ -29,6 +30,7 @@ const placeOrder = async (
         quantity,
         totalPrice,
         address,
+        customerLocation,
 
         customer:
           req.user.id,
@@ -220,6 +222,52 @@ const updateOrderStatus = async (
 
     }
 
+    const updateDeliveryLocation = async (
+  req,
+  res
+) => {
+
+  try {
+
+    const {
+      latitude,
+      longitude,
+    } = req.body;
+
+    const order =
+      await Order.findById(
+        req.params.id
+      );
+
+    if (!order) {
+
+      return res.status(404).json({
+        message: "Order not found",
+      });
+
+    }
+
+    order.deliveryLocation = {
+      latitude,
+      longitude,
+    };
+
+    await order.save();
+
+    res.status(200).json({
+      message:
+        "Location updated",
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      message: error.message,
+    });
+
+  }
+};
+
     // ensure assigned rider only
     if (
       !order.deliveryBoy ||
@@ -257,5 +305,6 @@ module.exports = {
   acceptOrder,
   rejectOrder,
   updateOrderStatus,
+  updateDeliveryLocation,
 
 };
