@@ -23,6 +23,10 @@ import {validateName,validatePhone,} from "../services/validation";
 
 import * as Location from "expo-location";
 
+import MapView, {
+  Marker,
+} from "react-native-maps";
+
 export default function PlaceOrderScreen({
   navigation,
   route,
@@ -44,6 +48,10 @@ export default function PlaceOrderScreen({
 
     const [customerLocation,
 setCustomerLocation] =
+useState(null);
+
+const [mapRegion,
+setMapRegion] =
 useState(null);
 
   const [quantity, setQuantity] =
@@ -79,12 +87,21 @@ useState(null);
     const location =
       await Location.getCurrentPositionAsync({});
 
-    setCustomerLocation({
-      latitude:
-        location.coords.latitude,
-      longitude:
-        location.coords.longitude,
-    });
+const coords = {
+  latitude:
+    location.coords.latitude,
+
+  longitude:
+    location.coords.longitude,
+};
+
+setCustomerLocation(coords);
+
+setMapRegion({
+  ...coords,
+  latitudeDelta: 0.01,
+  longitudeDelta: 0.01,
+});
 
     Toast.show({
       type: "success",
@@ -121,12 +138,15 @@ useState(null);
 
     }
 
-    if (address.trim().length < 10) {
+   if (
+  address.trim().length < 10 &&
+  !customerLocation
+) {
 
-      newErrors.address =
-        "Enter complete address";
+  newErrors.address =
+    "Add address or use current location";
 
-    }
+}
 
     setErrors(newErrors);
 
@@ -321,7 +341,7 @@ useState(null);
         )}
 
 
-        <TouchableOpacity
+ <TouchableOpacity
   style={styles.locationButton}
   onPress={getCurrentLocation}
 >
@@ -331,6 +351,48 @@ useState(null);
   </Text>
 
 </TouchableOpacity>
+
+{customerLocation && mapRegion && (
+
+<View style={styles.mapContainer}>
+
+<MapView
+  style={styles.map}
+  region={mapRegion}
+  onRegionChangeComplete={
+    setMapRegion
+  }
+>
+
+<Marker
+  coordinate={mapRegion}
+  draggable
+
+  onDragEnd={(e) => {
+
+    const coords =
+      e.nativeEvent.coordinate;
+
+    setCustomerLocation(coords);
+
+    setMapRegion({
+      ...coords,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01,
+    });
+
+  }}
+/>
+
+</MapView>
+
+<Text style={styles.mapText}>
+  Adjust delivery pin if needed 📍
+</Text>
+
+</View>
+
+)}
 
         <TouchableOpacity
           style={styles.button}
@@ -474,6 +536,22 @@ locationButtonText: {
   color: "#FFF",
   textAlign: "center",
   fontWeight: "700",
+},
+
+mapContainer: {
+  marginBottom: 20,
+},
+
+map: {
+  height: 220,
+  borderRadius: 20,
+},
+
+mapText: {
+  marginTop: 10,
+  textAlign: "center",
+  color: "#666",
+  fontWeight: "600",
 },
 
 });

@@ -20,6 +20,10 @@ import Toast from "react-native-toast-message";
 
 import * as Location from "expo-location";
 
+import {
+  Linking,
+} from "react-native";
+
 export default function DeliveryDashboard() {
 
   const [orders, setOrders] =
@@ -242,6 +246,35 @@ Toast.show({
     );
   }
 
+
+  const openRouteMap =
+  (order) => {
+
+  if (
+    !order.customerLocation
+  ) {
+
+    Toast.show({
+      type: "error",
+      text1:
+        "Customer location not available",
+    });
+
+    return;
+  }
+
+  const latitude =
+    order.customerLocation.latitude;
+
+  const longitude =
+    order.customerLocation.longitude;
+
+  const url =
+`https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
+
+  Linking.openURL(url);
+};
+
   return (
 
     <ScrollView style={styles.container}>
@@ -278,6 +311,24 @@ Toast.show({
             {" "}
             {order.status}
           </Text>
+
+          {order.customerLocation && (
+
+<TouchableOpacity
+  style={styles.routeButton}
+
+  onPress={() =>
+    openRouteMap(order)
+  }
+>
+
+<Text style={styles.buttonText}>
+  View Route 🗺️
+</Text>
+
+</TouchableOpacity>
+
+)}
 
           {/* ACCEPT BUTTON */}
 
@@ -468,5 +519,12 @@ rejectButton: {
     textAlign: "center",
     fontWeight: "700",
   },
+
+  routeButton: {
+  backgroundColor: "#2563EB",
+  padding: 14,
+  borderRadius: 14,
+  marginTop: 14,
+},
 
 });
