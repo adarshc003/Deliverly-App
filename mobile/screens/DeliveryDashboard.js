@@ -32,6 +32,9 @@ export default function DeliveryDashboard() {
   const [loading, setLoading] =
     useState(true);
 
+    const [trackingInterval, setTrackingInterval] =
+  useState(null);
+
   const fetchOrders = async () => {
 
     try {
@@ -76,6 +79,22 @@ useEffect(() => {
     clearInterval(interval);
 
 }, []);
+
+useEffect(() => {
+
+  return () => {
+
+    if (trackingInterval) {
+
+      clearInterval(
+        trackingInterval
+      );
+
+    }
+
+  };
+
+}, [trackingInterval]);
 
   // ACCEPT ORDER
   const acceptOrder = async (id) => {
@@ -199,6 +218,35 @@ const sendLiveLocation =
   }
 };
 
+const startLiveTracking =
+  (orderId) => {
+
+  if (trackingInterval) {
+
+    clearInterval(
+      trackingInterval
+    );
+
+  }
+
+  const interval =
+    setInterval(async () => {
+
+      await sendLiveLocation(
+        orderId
+      );
+
+      console.log(
+        "Live location updated"
+      );
+
+    }, 5000);
+
+  setTrackingInterval(
+    interval
+  );
+};
+
   // UPDATE STATUS
   const updateStatus = async (
     id,
@@ -211,9 +259,26 @@ const sendLiveLocation =
         await AsyncStorage.getItem(
           "token"
         );
-        if (status === "Picked Up") {
+if (status === "Picked Up") {
 
   await sendLiveLocation(id);
+
+  startLiveTracking(id);
+
+}
+
+if (
+  status === "Delivered" &&
+  trackingInterval
+) {
+
+  clearInterval(
+    trackingInterval
+  );
+
+  setTrackingInterval(
+    null
+  );
 
 }
 
