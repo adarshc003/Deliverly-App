@@ -27,6 +27,7 @@ import * as Location from "expo-location";
 
 import MapView, {
   Marker,
+  PROVIDER_GOOGLE,
 } from "react-native-maps";
 
 export default function PlaceOrderScreen({
@@ -85,12 +86,7 @@ export default function PlaceOrderScreen({
       }
 
       const location =
-  await Location.getCurrentPositionAsync({
-
-    accuracy:
-      Location.Accuracy.High,
-
-  });
+  await Location.getCurrentPositionAsync({});
 
       if (!location) {
 
@@ -380,13 +376,20 @@ export default function PlaceOrderScreen({
 
           <View style={styles.mapContainer}>
 
-            <MapView
-              style={styles.map}
-              initialRegion={mapRegion}
-            >
+<MapView
+provider={PROVIDER_GOOGLE}
+  style={styles.map}
+  region={mapRegion}
+>
 
-              <Marker
-                coordinate={mapRegion}
+<Marker
+  coordinate={{
+    latitude:
+      customerLocation.latitude,
+
+    longitude:
+      customerLocation.longitude,
+  }}
                 draggable
 
                 onDragEnd={(e) => {

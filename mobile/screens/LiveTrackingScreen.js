@@ -125,8 +125,8 @@ LiveTrackingScreen({
   return (
 
     <MapView
+      provider={PROVIDER_GOOGLE}
       style={styles.map}
-  provider={PROVIDER_GOOGLE}
       region={{
         latitude:
           order.deliveryLocation
