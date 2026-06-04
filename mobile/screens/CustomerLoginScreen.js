@@ -241,13 +241,14 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
-  input: {
-    backgroundColor: "#9eaab1b0",
-    padding: 18,
-    borderRadius: 16,
-    marginBottom: 18,
-    fontSize: 15,
-  },
+input: {
+  backgroundColor: "#9eaab1b0",
+  padding: 18,
+  borderRadius: 16,
+  marginBottom: 18,
+  fontSize: 15,
+  color: "#111",
+},
 
   button: {
     backgroundColor: "#111111",

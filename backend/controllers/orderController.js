@@ -284,6 +284,19 @@ const updateDeliveryLocation = async (
 
     }
 
+    if (
+  !order.deliveryBoy ||
+  order.deliveryBoy.toString() !==
+    req.user.id
+) {
+
+  return res.status(403).json({
+    message:
+      "Unauthorized action",
+  });
+
+}
+
     order.deliveryLocation = {
       latitude,
       longitude,

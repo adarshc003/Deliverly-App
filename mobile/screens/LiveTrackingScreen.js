@@ -12,6 +12,7 @@ import {
 
 import MapView, {
   Marker,
+  PROVIDER_GOOGLE,
 } from "react-native-maps";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -125,7 +126,7 @@ LiveTrackingScreen({
 
     <MapView
       style={styles.map}
-
+  provider={PROVIDER_GOOGLE}
       region={{
         latitude:
           order.deliveryLocation

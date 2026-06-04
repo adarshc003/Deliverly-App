@@ -85,7 +85,12 @@ export default function PlaceOrderScreen({
       }
 
       const location =
-        await Location.getLastKnownPositionAsync();
+  await Location.getCurrentPositionAsync({
+
+    accuracy:
+      Location.Accuracy.High,
+
+  });
 
       if (!location) {
 

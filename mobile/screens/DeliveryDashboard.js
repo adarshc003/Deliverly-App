@@ -61,11 +61,21 @@ const response =
     }
   };
 
-  useEffect(() => {
+useEffect(() => {
 
-    fetchOrders();
+  fetchOrders();
 
-  }, []);
+  const interval =
+    setInterval(() => {
+
+      fetchOrders();
+
+    }, 5000);
+
+  return () =>
+    clearInterval(interval);
+
+}, []);
 
   // ACCEPT ORDER
   const acceptOrder = async (id) => {
@@ -201,7 +211,11 @@ const sendLiveLocation =
         await AsyncStorage.getItem(
           "token"
         );
-        await sendLiveLocation(id);
+        if (status === "Picked Up") {
+
+  await sendLiveLocation(id);
+
+}
 
       await API.put(
         `/orders/status/${id}`,

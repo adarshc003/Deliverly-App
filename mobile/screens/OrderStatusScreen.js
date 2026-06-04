@@ -30,18 +30,21 @@ export default function OrderStatusScreen({
 
     try {
 
-const token =
-  await AsyncStorage.getItem(
-    "token"
-  );
+      const token =
+        await AsyncStorage.getItem(
+          "token"
+        );
 
-const response =
-  await API.get("/orders", {
-    headers: {
-      Authorization:
-        `Bearer ${token}`,
-    },
-  });
+      const response =
+        await API.get(
+          "/orders",
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
 
       setOrders(response.data);
 
@@ -60,9 +63,20 @@ const response =
 
     fetchOrders();
 
+    const interval =
+      setInterval(() => {
+
+        fetchOrders();
+
+      }, 5000);
+
+    return () =>
+      clearInterval(interval);
+
   }, []);
 
-  const getStatusColor = (status) => {
+  const getStatusColor =
+    (status) => {
 
     switch (status) {
 
@@ -81,6 +95,28 @@ const response =
       default:
         return "#111";
 
+    }
+  };
+
+  const getStatusMessage =
+    (status) => {
+
+    switch (status) {
+
+      case "Pending":
+        return "Waiting for delivery partner";
+
+      case "Accepted":
+        return "Delivery partner accepted your order";
+
+      case "Picked Up":
+        return "Your order is on the way 🚚";
+
+      case "Delivered":
+        return "Order delivered successfully ✅";
+
+      default:
+        return "";
     }
   };
 
@@ -163,29 +199,40 @@ const response =
 
             </View>
 
-            {order.status !==
-"Pending" && (
+            <Text style={styles.statusMessage}>
+              {getStatusMessage(
+                order.status
+              )}
+            </Text>
 
-<TouchableOpacity
-  style={styles.trackButton}
-  onPress={() =>
-    navigation.navigate(
-      "LiveTracking",
-      {
-        orderId:
-          order._id,
-      }
-    )
-  }
->
+{order.status ===
+  "Picked Up" && (
 
-  <Text style={styles.trackButtonText}>
-    Live Track 🚚
-  </Text>
+              <TouchableOpacity
+                style={styles.trackButton}
 
-</TouchableOpacity>
+                onPress={() =>
+                  navigation.navigate(
+                    "LiveTracking",
+                    {
+                      orderId:
+                        order._id,
+                    }
+                  )
+                }
+              >
 
-)}
+                <Text
+                  style={
+                    styles.trackButtonText
+                  }
+                >
+                  Live Track 🚚
+                </Text>
+
+              </TouchableOpacity>
+
+            )}
 
           </View>
 
@@ -265,18 +312,25 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
 
-  trackButton: {
-  backgroundColor: "#111",
-  padding: 14,
-  borderRadius: 14,
-  marginTop: 16,
-  alignItems: "center",
-},
+  statusMessage: {
+    marginTop: 12,
+    color: "#666",
+    fontSize: 14,
+    lineHeight: 22,
+  },
 
-trackButtonText: {
-  color: "#FFF",
-  fontWeight: "700",
-},
+  trackButton: {
+    backgroundColor: "#111",
+    padding: 14,
+    borderRadius: 14,
+    marginTop: 18,
+    alignItems: "center",
+  },
+
+  trackButtonText: {
+    color: "#FFF",
+    fontWeight: "700",
+  },
 
   empty: {
     marginTop: 60,
