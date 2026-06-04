@@ -6,7 +6,7 @@ version: "1.0.0",
 orientation: "portrait",
 icon: "./assets/icon.png",
 
-```
+
 userInterfaceStyle: "light",
 
 ios: {
@@ -58,7 +58,7 @@ extra: {
       "c2b34c3d-abe9-4313-80b3-d41b984f574a",
   },
 },
-```
+
 
 },
 };
